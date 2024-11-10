@@ -1,4 +1,5 @@
 ﻿
+using NeuralNetwork.DataModel;
 using static NeuralNetwork.Core.ActivationFunction;
 
 namespace NeuralNetwork.Core
@@ -101,6 +102,11 @@ namespace NeuralNetwork.Core
             return outputLayerOutput;
         }
 
+        public double[] Forward(DataModelBase model)
+        {
+            return Forward(model.GetInput());
+        }
+
         public void Backpropagate(double[] inputs, double[] targets)
         {
             // Calculate output layer error and deltas
@@ -142,6 +148,11 @@ namespace NeuralNetwork.Core
             }
         }
 
+        public void Backpropagate(DataModelBase model)
+        {
+            Backpropagate(model.GetInput(), model.GetTarget());
+        }
+
         public void Train(double[] inputs, double[] targets, int epochs)
         {
             for (int i = 0; i < epochs; i++)
@@ -171,12 +182,27 @@ namespace NeuralNetwork.Core
             }
             return error;
         }
+        public double Test(DataModelBase model)
+        {
+            return Test(model.GetInput(), model.GetTarget());
+        }
+
         public double Test(double[][] inputs, double[][] targets)
         {
             double error = 0;
             for(int i = 0; i < inputs.Length; i++)
             {
                 error += Test(inputs[i], targets[i]);
+            }
+            return error;
+        }
+
+        public double Test<T>(T[] model) where T : DataModelBase
+        {
+            double error = 0;
+            for (int i = 0; i < model.Length; i++)
+            {
+                error += Test(model[i]);
             }
             return error;
         }
@@ -200,6 +226,7 @@ namespace NeuralNetwork.Core
                 Console.WriteLine(res[j].ToString("0.00") + "}");
             }
         }
+
         public void SaveToFile(string path)
         {
             BinaryWriter bw = new BinaryWriter(File.Create(path));
@@ -296,6 +323,10 @@ namespace NeuralNetwork.Core
             }
             br.Close();
             return nw;
+        }
+
+        private class inputs
+        {
         }
     }
 }
