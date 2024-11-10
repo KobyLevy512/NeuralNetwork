@@ -89,6 +89,25 @@ namespace NeuralNetwork.DataModel
 
             return ret.ToArray();
         }
+        int GetSize(FieldInfo[] fields)
+        {
+            int size = 0;
+            foreach (var field in fields)
+            {
+                if (field.FieldType == typeof(string))
+                {
+                    int s = field.GetCustomAttribute<FieldAttribute>().Size;
+                    size += s / 4;
+                    if (s % 4 != 0)
+                        size++;
+                }
+                else
+                {
+                    size++;
+                }
+            }
+            return size;
+        }
         public double[] GetTarget()
         {
             return GetFieldValues(targetsFields);
@@ -96,6 +115,14 @@ namespace NeuralNetwork.DataModel
         public double[] GetInput()
         {
             return GetFieldValues(inputsFields);
+        }
+        public int GetInputsSize()
+        {
+            return GetSize(inputsFields);
+        }
+        public int GetTargetsSize()
+        {
+            return GetSize(targetsFields);
         }
     }
 }

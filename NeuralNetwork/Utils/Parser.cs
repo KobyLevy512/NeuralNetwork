@@ -21,6 +21,7 @@ namespace NeuralNetwork.Utils
                 if (ret[retIndex].Length == len)
                     retIndex++;
             }
+            if (retIndex == ret.Length) return ret;
             while(ret[retIndex].Length < len)
             {
                 ret[retIndex] += ((char)0).ToString();
@@ -39,6 +40,22 @@ namespace NeuralNetwork.Utils
                 result[i] = *ptr;
             }
             return result;
+        }
+
+        public static string DoubleToString(double[] values)
+        {
+            string ret = "";
+            foreach(double d in values)
+            {
+                long* ptr = (long*)&d;
+                long value = *ptr;
+                for(int i = 0; i < 4; i++)
+                {
+                    ret += ((char)value).ToString();
+                    value >>= 16;
+                }
+            }
+            return ret;
         }
     }
 }

@@ -19,6 +19,10 @@ namespace NeuralNetwork.Core
         public ActivationFunction.Activation Activation, ActivationDerivative;
         public int Seed;
         private NeuralNetwork(){}
+        public NeuralNetwork(DataModelBase model) : this(model.GetInputsSize(), model.GetInputsSize(), model.GetTargetsSize())
+        {
+
+        }
         public NeuralNetwork(NeuralNetwork cpy, int seed = 0, double learningRate = 0.0)
         {
             if(learningRate == 0.0)
@@ -172,6 +176,20 @@ namespace NeuralNetwork.Core
                 }
             }
         }
+
+        public void Train(DataModelBase model, int epochs)
+        {
+            Train(model.GetInput(), model.GetTarget(), epochs);
+        }
+
+        public void Train<T>(T[] model, int epochs) where T : DataModelBase
+        {
+            for(int i = 0; i < model.Length; i++)
+            {
+                Train(model[i], epochs);
+            }
+        }
+
         public double Test(double[] inputs, double[] targets)
         {
             double error = 0;
