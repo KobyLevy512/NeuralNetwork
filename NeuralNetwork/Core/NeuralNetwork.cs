@@ -17,10 +17,7 @@ namespace NeuralNetwork.Core
 
         public ActivationFunction.Activation Activation, ActivationDerivative;
         public int Seed;
-        private NeuralNetwork()
-        {
-
-        }
+        private NeuralNetwork(){}
         public NeuralNetwork(NeuralNetwork cpy, int seed = 0, double learningRate = 0.0)
         {
             if(learningRate == 0.0)
