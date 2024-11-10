@@ -3,21 +3,41 @@ namespace NeuralNetwork.Utils
 {
     public unsafe static class Parser
     {
+        static string[] SplitStringBySize(string input, int len)
+        {
+            string[] ret;
+            if (input.Length % len == 0)
+            {
+                ret = new string[input.Length / len];
+            }
+            else
+            {
+                ret = new string[input.Length / len + 1];
+            }
+            int retIndex = 0;
+            foreach(char c in input)
+            {
+                ret[retIndex] += c.ToString();
+                if (ret[retIndex].Length == len)
+                    retIndex++;
+            }
+            while(ret[retIndex].Length < len)
+            {
+                ret[retIndex] += ((char)0).ToString();
+            }
+            return ret;
+            
+        }
         public static double[] StringToDouble(string input)
         {
-            double[] result = new double[input.Length];
-
-            ushort[] asShort = new ushort[input.Length];
-            for(int i = 0; i < input.Length; i++)
+            string[] split = SplitStringBySize(input, 4);
+            double[] result = new double[split.Length];
+            for(int i = 0; i < split.Length; i++)
             {
-                ushort a = input[i];
-                ushort b = input[i+1];
-                ushort c = input[i+2];
-                ushort d = input[i+3];
-                asShort[i] = input[i];
+                long val = split[i][0] | ((long)split[i][1] << 16) | ((long)split[i][2] << 32) | ((long)split[i][3] << 48);
+                double* ptr = (double*)&val;
+                result[i] = *ptr;
             }
-
-
             return result;
         }
     }
