@@ -10,12 +10,10 @@ namespace NeuralNetwork.DataModel
         public class FieldAttribute : System.Attribute
         {
             public int Location;
-            public Type Type;
             public bool Input;
             public int Size;
-            public FieldAttribute(int location, Type type, bool input, int size = 0)
+            public FieldAttribute(int location, bool input, int size = 0)
             {
-                this.Type = type;
                 this.Location = location;
                 Input = input;
                 Size = size;
@@ -50,7 +48,7 @@ namespace NeuralNetwork.DataModel
             {
                 FieldAttribute? att = field.GetCustomAttribute<FieldAttribute>();
                 if (att == null) continue;
-                Type type = att.Type;
+                Type type = field.FieldType;
                 if (type == typeof(string))
                 {
                     string? value = field.GetValue(this)?.ToString();
