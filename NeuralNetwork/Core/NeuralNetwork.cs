@@ -74,13 +74,7 @@ namespace NeuralNetwork.Core
             {
                 for (int j = 0; j < weights.GetLength(1); j++)
                 {
-                    double noise = 0;
-                    for(int i = 0; i < 16; i++)
-                    {
-                        noise += random.NextDouble();
-                    }
-                    noise /= 16;
-                    weights[i, j] = noise * 2 - 1; // Range [-1, 1]
+                    weights[i, j] = random.NextDouble() * 2 - 1; // Range [-1, 1]
                 }
             }
         }
