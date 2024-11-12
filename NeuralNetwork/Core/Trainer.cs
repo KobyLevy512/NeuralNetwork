@@ -1,5 +1,4 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -76,7 +75,7 @@ namespace NeuralNetwork.Core
             Task[] tasks = new Task[50];
             int[] seedSteps = new int[tasks.Length];
             int value = int.MinValue;
-            for(int i = 0; i<seedSteps.Length; i++)
+            for (int i = 0; i < seedSteps.Length; i++)
             {
                 seedSteps[i] = value;
                 value += (int)(uint.MaxValue / tasks.Length);
@@ -99,7 +98,7 @@ namespace NeuralNetwork.Core
                     {
 
                         //Iterate all of the activation functions to find the best.
-                        for(int act = 0; act < ActivationFunction.Functions.Length; act+= 2)
+                        for (int act = 0; act < ActivationFunction.Functions.Length; act += 2)
                         {
                             NeuralNetwork cp = new NeuralNetwork(network, seed);
                             cp.Activation = ActivationFunction.Functions[act];

@@ -1,6 +1,4 @@
-﻿
-using NeuralNetwork.DataModel;
-using static NeuralNetwork.Core.ActivationFunction;
+﻿using static NeuralNetwork.Core.ActivationFunction;
 
 namespace NeuralNetwork.Core
 {
@@ -18,19 +16,18 @@ namespace NeuralNetwork.Core
 
         public ActivationFunction.Activation Activation, ActivationDerivative;
         public int Seed;
-        private NeuralNetwork(){}
-        public NeuralNetwork(DataModelBase model) : this(model.GetInputsSize(), model.GetInputsSize(), model.GetTargetsSize())
+        private NeuralNetwork()
         {
 
         }
         public NeuralNetwork(NeuralNetwork cpy, int seed = 0, double learningRate = 0.0)
         {
-            if(learningRate == 0.0)
+            if (learningRate == 0.0)
                 this.learningRate = cpy.learningRate;
-            else 
+            else
                 this.learningRate = learningRate;
 
-            if(seed != 0)
+            if (seed != 0)
                 random = new Random(seed);
 
             this.Activation = cpy.Activation;
@@ -48,7 +45,7 @@ namespace NeuralNetwork.Core
         }
         public NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, int seed = 0, double learningRate = 0.1)
         {
-            if(seed != 0)
+            if (seed != 0)
             {
                 random = new Random(seed);
             }
@@ -106,11 +103,6 @@ namespace NeuralNetwork.Core
             return outputLayerOutput;
         }
 
-        public double[] Forward(DataModelBase model)
-        {
-            return Forward(model.GetInput());
-        }
-
         public void Backpropagate(double[] inputs, double[] targets)
         {
             // Calculate output layer error and deltas
@@ -152,11 +144,6 @@ namespace NeuralNetwork.Core
             }
         }
 
-        public void Backpropagate(DataModelBase model)
-        {
-            Backpropagate(model.GetInput(), model.GetTarget());
-        }
-
         public void Train(double[] inputs, double[] targets, int epochs)
         {
             for (int i = 0; i < epochs; i++)
@@ -167,7 +154,7 @@ namespace NeuralNetwork.Core
         }
         public void Train(double[][] inputs, double[][] targets, int epochs)
         {
-            for(int j = 0; j < epochs; j++)
+            for (int j = 0; j < epochs; j++)
             {
                 for (int i = 0; i < inputs.Length; i++)
                 {
@@ -176,20 +163,6 @@ namespace NeuralNetwork.Core
                 }
             }
         }
-
-        public void Train(DataModelBase model, int epochs)
-        {
-            Train(model.GetInput(), model.GetTarget(), epochs);
-        }
-
-        public void Train<T>(T[] model, int epochs) where T : DataModelBase
-        {
-            for(int i = 0; i < model.Length; i++)
-            {
-                Train(model[i], epochs);
-            }
-        }
-
         public double Test(double[] inputs, double[] targets)
         {
             double error = 0;
@@ -200,33 +173,18 @@ namespace NeuralNetwork.Core
             }
             return error;
         }
-        public double Test(DataModelBase model)
-        {
-            return Test(model.GetInput(), model.GetTarget());
-        }
-
         public double Test(double[][] inputs, double[][] targets)
         {
             double error = 0;
-            for(int i = 0; i < inputs.Length; i++)
+            for (int i = 0; i < inputs.Length; i++)
             {
                 error += Test(inputs[i], targets[i]);
             }
             return error;
         }
-
-        public double Test<T>(T[] model) where T : DataModelBase
-        {
-            double error = 0;
-            for (int i = 0; i < model.Length; i++)
-            {
-                error += Test(model[i]);
-            }
-            return error;
-        }
         public void Print(double[][] inputs)
         {
-            for(int i = 0;i < inputs.GetLength(0);i++)
+            for (int i = 0; i < inputs.GetLength(0); i++)
             {
                 double[] res = Forward(inputs[i]);
                 Console.Write("{");
@@ -244,16 +202,15 @@ namespace NeuralNetwork.Core
                 Console.WriteLine(res[j].ToString("0.00") + "}");
             }
         }
-
         public void SaveToFile(string path)
         {
             BinaryWriter bw = new BinaryWriter(File.Create(path));
 
             bw.Write(Seed);
 
-            for(int i = 0; i < Functions.Length; i++) 
+            for (int i = 0; i < Functions.Length; i++)
             {
-                if(Activation == Functions[i])
+                if (Activation == Functions[i])
                 {
                     bw.Write(i);
                     break;
@@ -272,7 +229,7 @@ namespace NeuralNetwork.Core
             bw.Write(learningRate);
 
             bw.Write(outputLayerOutput.Length);
-            foreach(double v in outputLayerOutput)
+            foreach (double v in outputLayerOutput)
             {
                 bw.Write(v);
             }
@@ -285,9 +242,9 @@ namespace NeuralNetwork.Core
 
             bw.Write(weightsHiddenOutput.GetLength(0));
             bw.Write(weightsHiddenOutput.GetLength(1));
-            for(int y = 0; y < weightsHiddenOutput.GetLength(0); y++)
+            for (int y = 0; y < weightsHiddenOutput.GetLength(0); y++)
             {
-                for(int x = 0; x < weightsHiddenOutput.GetLength(1); x++)
+                for (int x = 0; x < weightsHiddenOutput.GetLength(1); x++)
                 {
                     bw.Write(weightsHiddenOutput[y, x]);
                 }
@@ -314,7 +271,7 @@ namespace NeuralNetwork.Core
             nw.ActivationDerivative = Functions[br.ReadInt32()];
             nw.learningRate = br.ReadDouble();
             nw.outputLayerOutput = new double[br.ReadInt32()];
-            for(int i = 0; i < nw.outputLayerOutput.Length; i++)
+            for (int i = 0; i < nw.outputLayerOutput.Length; i++)
             {
                 nw.outputLayerOutput[i] = br.ReadDouble();
             }
@@ -324,11 +281,11 @@ namespace NeuralNetwork.Core
                 nw.hiddenLayerOutput[i] = br.ReadDouble();
             }
             nw.weightsHiddenOutput = new double[br.ReadInt32(), br.ReadInt32()];
-            for(int y = 0; y < nw.weightsHiddenOutput.GetLength(0); y++)
+            for (int y = 0; y < nw.weightsHiddenOutput.GetLength(0); y++)
             {
-                for(int x = 0; x < nw.weightsHiddenOutput.GetLength(1); x++)
+                for (int x = 0; x < nw.weightsHiddenOutput.GetLength(1); x++)
                 {
-                    nw.weightsHiddenOutput[y,x] = br.ReadDouble();
+                    nw.weightsHiddenOutput[y, x] = br.ReadDouble();
                 }
             }
             nw.weightsInputHidden = new double[br.ReadInt32(), br.ReadInt32()];
@@ -341,10 +298,6 @@ namespace NeuralNetwork.Core
             }
             br.Close();
             return nw;
-        }
-
-        private class inputs
-        {
         }
     }
 }

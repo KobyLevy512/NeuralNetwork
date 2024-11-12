@@ -1,5 +1,4 @@
 ﻿
-using NeuralNetwork.Utils;
 using System.Reflection;
 
 namespace NeuralNetwork.DataModel
@@ -65,7 +64,7 @@ namespace NeuralNetwork.DataModel
                             value += ((char)0).ToString();
                         }
                     }
-                    ret.AddRange(Parser.StringToDouble(value));
+                    //ret.AddRange(Parser.StringToDouble(value));
                 }
                 else if (type == typeof(int))
                 {

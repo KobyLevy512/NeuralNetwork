@@ -1,5 +1,7 @@
 ﻿
 
+using NeuralNetwork.Core;
+
 namespace NeuralNetwork
 {
     internal class Program
