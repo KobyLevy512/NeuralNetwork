@@ -86,24 +86,58 @@ namespace NeuralNetwork.Core
             return output;
         }
 
-        public void Train(double[] inputs, double[] targets, double learningRate)
+        public void Train(double[] inputs, double[] targets, int epochs, double learningRate)
         {
-            //Calculate output deltas.
-            double[] outputDeltas = new double[output.Length];
-            for (int i = 0; i < outputDeltas.Length; i++)
+            for(int epoch = 0; epoch < epochs; epoch++)
             {
-                double error = targets[i] - output[i];
-                outputDeltas[i] = error * ActivationDerivative(output[i]);
-            }
+                //Calculate output deltas.
+                double[] outputDeltas = new double[output.Length];
+                for (int i = 0; i < outputDeltas.Length; i++)
+                {
+                    double error = targets[i] - output[i];
+                    outputDeltas[i] = error * ActivationDerivative(output[i]);
+                }
 
-            //Pass all the hidden layers and update them.
-            for (int i = 0; i < HiddenLayers.Count; i++)
-            {
-                double[] output = new double[HiddenLayers[i].ExpectedOutput];
-                HiddenLayers[i].Pass(inputs, output, Activation);
-                HiddenLayers[i].UpdateWeights(inputs, outputDeltas, ActivationDerivative, learningRate);
-                inputs = output;
+                //Pass all the hidden layers and update them.
+                for (int i = 0; i < HiddenLayers.Count; i++)
+                {
+                    double[] output = new double[HiddenLayers[i].ExpectedOutput];
+                    HiddenLayers[i].Pass(inputs, output, Activation);
+                    HiddenLayers[i].UpdateWeights(inputs, outputDeltas, ActivationDerivative, learningRate);
+                    inputs = output;
+                }
             }
+        }
+
+        public void Train(double[][] inputs, double[][] targets, int epochs, double learningRate)
+        {
+            for (int epoch = 0; epoch < epochs; epoch++)
+            {
+                for(int i = 0; i < inputs.Length; i++)
+                {
+                    Train(inputs[i], targets[i], 1, learningRate);
+                }
+            }
+        }
+        public double Test(double[] inputs, double[] targets)
+        {
+            double error = 0;
+            double[] output = Forward(inputs);
+            for (int i = 0; i < output.Length; i++)
+            {
+                error += Math.Abs(targets[i] - output[i]);
+            }
+            return error;
+        }
+
+        public double Test(double[][] inputs, double[][] targets)
+        {
+            double error = 0;
+            for(int i = 0; i <inputs.Length; i++)
+            {
+                error += Test(inputs[i], targets[i]);
+            }
+            return error;
         }
         public void Backpropagate(double[] inputs, double[] targets, double learningRate = 0.1)
         {
