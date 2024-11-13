@@ -64,6 +64,13 @@ namespace NeuralNetwork.Core
                         weightsInput[y, x] = rnd.NextDouble() * 2 - 1;
                     }
                 }
+                for (int y = 0; y < weightsOutput.GetLength(0); y++)
+                {
+                    for (int x = 0; x < weightsOutput.GetLength(1); x++)
+                    {
+                        weightsOutput[y, x] = rnd.NextDouble() * 2 - 1;
+                    }
+                }
             }
         }
 

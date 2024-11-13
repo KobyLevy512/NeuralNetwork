@@ -76,7 +76,7 @@ namespace NeuralNetwork.Core
             }
         }
 
-        public double[] Forward(double[] inputs)
+        public virtual double[] Forward(double[] inputs)
         {
             // Input -> Hidden
             for (int i = 0; i < hiddenLayerOutput.Length; i++)
@@ -103,7 +103,7 @@ namespace NeuralNetwork.Core
             return outputLayerOutput;
         }
 
-        public void Backpropagate(double[] inputs, double[] targets)
+        public virtual void Backpropagate(double[] inputs, double[] targets)
         {
             // Calculate output layer error and deltas
             double[] outputDeltas = new double[outputLayerOutput.Length];

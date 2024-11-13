@@ -90,19 +90,20 @@ namespace NeuralNetwork.Core
         {
             for(int epoch = 0; epoch < epochs; epoch++)
             {
-                //Calculate output deltas.
-                double[] outputDeltas = new double[output.Length];
-                for (int i = 0; i < outputDeltas.Length; i++)
-                {
-                    double error = targets[i] - output[i];
-                    outputDeltas[i] = error * ActivationDerivative(output[i]);
-                }
-
                 //Pass all the hidden layers and update them.
                 for (int i = 0; i < HiddenLayers.Count; i++)
                 {
                     double[] output = new double[HiddenLayers[i].ExpectedOutput];
                     HiddenLayers[i].Pass(inputs, output, Activation);
+
+                    //Calculate output deltas.
+                    double[] outputDeltas = new double[output.Length];
+                    for (int j = 0; j < outputDeltas.Length; j++)
+                    {
+                        double error = targets[j] - output[j];
+                        outputDeltas[j] = error * ActivationDerivative(output[j]);
+                    }
+
                     HiddenLayers[i].UpdateWeights(inputs, outputDeltas, ActivationDerivative, learningRate);
                     inputs = output;
                 }
