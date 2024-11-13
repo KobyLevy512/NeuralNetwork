@@ -11,17 +11,23 @@ namespace NeuralNetwork.Core
         //Layers
         public List<NeuronLayer> HiddenLayers;
         private double[] output;
+        private double learningRate;
 
         //Learning Info.
         public Activation Activation, ActivationDerivative;
         public int Seed;
 
-        public DeepNeural(DeepNeural cpy, int newSeed = 0)
+        public DeepNeural(DeepNeural cpy, int newSeed = 0, double learningRate = 0)
         {
             //Set the new seed if supply
             if (newSeed != 0) Seed = newSeed;
             else Seed = cpy.Seed;
             random = new Random(Seed);
+
+            //Set the learning rate.
+            if(learningRate != 0)
+                this.learningRate = learningRate;
+            else this.learningRate = cpy.learningRate;
 
             //Set Activations.
             Activation = cpy.Activation;
@@ -30,12 +36,13 @@ namespace NeuralNetwork.Core
             //Set the layers.
             output = new double[cpy.output.Length];
             HiddenLayers = new List<NeuronLayer>();
-            for(int i = 0; i < cpy.HiddenLayers.Count; i++)
+            for (int i = 0; i < cpy.HiddenLayers.Count; i++)
             {
                 HiddenLayers.Add(new NeuronLayer(cpy.HiddenLayers[i]));
             }
 
             ResetWeights();
+            
         }
         public DeepNeural(int outputSize):this(outputSize, 0) { }
         public DeepNeural(int outputSize, int seed):this(outputSize, seed, Sigmoid, SigmoidDerivative) { }
@@ -59,6 +66,8 @@ namespace NeuralNetwork.Core
             {
                 random = new Random();
             }
+
+            this.learningRate = 0.1;
         }
 
         /// <summary>
@@ -88,7 +97,7 @@ namespace NeuralNetwork.Core
             return output;
         }
 
-        public void Train(double[] inputs, double[] targets, int epochs, double learningRate)
+        public void Train(double[] inputs, double[] targets, int epochs)
         {
             for(int epoch = 0; epoch < epochs; epoch++)
             {
@@ -112,17 +121,17 @@ namespace NeuralNetwork.Core
             }
         }
 
-        public void Train(double[][] inputs, double[][] targets, int epochs, double learningRate)
+        public void Train(double[][] inputs, double[][] targets, int epochs)
         {
             for (int epoch = 0; epoch < epochs; epoch++)
             {
                 for(int i = 0; i < inputs.Length; i++)
                 {
-                    Train(inputs[i], targets[i], 1, learningRate);
+                    Train(inputs[i], targets[i], 1);
                 }
             }
         }
-        public double Test(double[] inputs, double[] targets)
+        public virtual double Test(double[] inputs, double[] targets)
         {
             double error = 0;
             double[] output = Forward(inputs);
@@ -141,25 +150,6 @@ namespace NeuralNetwork.Core
                 error += Test(inputs[i], targets[i]);
             }
             return error;
-        }
-        public void Backpropagate(double[] inputs, double[] targets, double learningRate = 0.1)
-        {
-            //Calculate output deltas.
-            double[] outputDeltas = new double[output.Length];
-            for (int i = 0; i < outputDeltas.Length; i++)
-            {
-                double error = targets[i] - output[i];
-                outputDeltas[i] = error * ActivationDerivative(output[i]);
-            }
-
-            //Update the Weights for all hidden layers.
-            for (int i = 0; i < HiddenLayers.Count; i++)
-            {
-                double[] output = new double[HiddenLayers[i].ExpectedOutput];
-                HiddenLayers[i].UpdateWeights(inputs, outputDeltas, ActivationDerivative, learningRate);
-                HiddenLayers[i].Pass(inputs, output, Activation);
-                inputs = output;
-            }
         }
     }
 }

@@ -54,6 +54,20 @@ namespace NeuralNetwork.Core
                         weightsInput[y, x] = pinkSum * 2 - 1;
                     }
                 }
+
+                for (int y = 0; y < weightsOutput.GetLength(0); y++)
+                {
+                    for (int x = 0; x < weightsOutput.GetLength(1); x++)
+                    {
+                        double pinkSum = 0;
+                        for (int i = 0; i < pinkSize; i++)
+                        {
+                            pinkSum += rnd.NextDouble();
+                        }
+                        pinkSum /= pinkSize;
+                        weightsOutput[y, x] = pinkSum * 2 - 1;
+                    }
+                }
             }
             else
             {
@@ -80,7 +94,7 @@ namespace NeuralNetwork.Core
         /// <param name="input"></param>
         /// <param name="activation"></param>
         /// <exception cref="ArgumentException"></exception>
-        public void PassInput(double[] input, Activation activation)
+        public virtual void PassInput(double[] input, Activation activation)
         {
             if(input.Length != weightsInput.GetLength(0))
             {
@@ -104,7 +118,7 @@ namespace NeuralNetwork.Core
         /// <param name="output"></param>
         /// <param name="activation"></param>
         /// <exception cref="ArgumentException"></exception>
-        public void PassOutput(double[] output, Activation activation)
+        public virtual void PassOutput(double[] output, Activation activation)
         {
             if (output.Length != weightsOutput.GetLength(1))
             {
@@ -137,7 +151,7 @@ namespace NeuralNetwork.Core
         /// Update the weights in Backpropagate.
         /// </summary>
         /// <param name="errorDelats"></param>
-        public void UpdateWeights(double[] inputs, double[] outputDeltas, Activation actDer, double learningRate)
+        public virtual void UpdateWeights(double[] inputs, double[] outputDeltas, Activation actDer, double learningRate)
         {
             //Calculate deltas.
             double[] hiddenDeltas = new double[output.Length];

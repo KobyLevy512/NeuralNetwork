@@ -1,11 +1,17 @@
 ﻿using System.Diagnostics;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace NeuralNetwork.Core
 {
     public class Trainer
     {
+        int threads, epochs;
+        double minutesToTrain;
+        public Trainer(double minutesToTrain, int thread, int epochs)
+        {
+            this.minutesToTrain = minutesToTrain;
+            this.threads = thread;
+            this.epochs = epochs;
+        }
         private int[] BuildSeedSteps(int size)
         {
             int[] seedSteps = new int[size];
@@ -17,9 +23,8 @@ namespace NeuralNetwork.Core
             }
             return seedSteps;
         }
-        public DeepNeural? Train(DeepNeural network, double[][] inputs, double[][] targets, double minutesToTrain = 1.0, double learningRate=0.1, int threads = 50)
+        public DeepNeural? Train(DeepNeural network, double[][] inputs, double[][] targets)
         {
-            const int epochs = 10000;//Amount of train session per activation fn + seed.
             DeepNeural? best = null;
             double bestValue = double.MaxValue;
             Task[] tasks = new Task[threads];
@@ -47,7 +52,7 @@ namespace NeuralNetwork.Core
                             cp.ActivationDerivative = ActivationFunction.Functions[act + 1];
 
                             //Train and get the test error result.
-                            cp.Train(inputs, targets, epochs, learningRate);
+                            cp.Train(inputs, targets, epochs);
                             double testResult = cp.Test(inputs, targets);
 
                             //Check if is it the best yet.
@@ -67,12 +72,11 @@ namespace NeuralNetwork.Core
 
             return best;
         }
-        public NeuralNetwork? Train(NeuralNetwork network, double[][] inputs, double[][] targets, double minutesToTrain = 1.0)
+        public NeuralNetwork? Train(NeuralNetwork network, double[][] inputs, double[][] targets)
         {
-            const int epochs = 10000;//Amount of train session per activation fn + seed.
             NeuralNetwork? best = null;
             double bestValue = double.MaxValue;
-            Task[] tasks = new Task[50];
+            Task[] tasks = new Task[threads];
             int[] seedSteps = BuildSeedSteps(tasks.Length);
             int value = int.MinValue;
             for (int i = 0; i < seedSteps.Length; i++)
