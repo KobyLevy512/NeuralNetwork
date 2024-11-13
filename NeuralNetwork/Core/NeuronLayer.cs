@@ -19,6 +19,7 @@ namespace NeuralNetwork.Core
         {
             get => output.Length;
         }
+        private NeuronLayer() { }
         public NeuronLayer(NeuronLayer cpy)
         {
             weightsInput = new double[cpy.weightsInput.GetLength(0), cpy.weightsInput.GetLength(1)];
@@ -182,6 +183,65 @@ namespace NeuralNetwork.Core
                     weightsInput[i, j] += learningRate * hiddenDeltas[j] * inputs[i];
                 }
             }
+        }
+
+        public void SaveToFile(BinaryWriter bw)
+        {
+            bw.Write(output.Length);
+            for(int i = 0; i < output.Length; i++)
+            {
+                bw.Write(output[i]);
+            }
+
+            bw.Write(weightsOutput.GetLength(0));
+            bw.Write(weightsOutput.GetLength(1));
+            for(int y = 0; y < weightsOutput.GetLength(0); y++)
+            {
+                for(int x = 0; x < weightsOutput.GetLength(1); x++)
+                {
+                    bw.Write(weightsOutput[y, x]);
+                }
+            }
+
+            bw.Write(weightsInput.GetLength(0));
+            bw.Write(weightsInput.GetLength(1));
+            for (int y = 0; y < weightsInput.GetLength(0); y++)
+            {
+                for (int x = 0; x < weightsInput.GetLength(1); x++)
+                {
+                    bw.Write(weightsInput[y, x]);
+                }
+            }
+        }
+
+        public static NeuronLayer LoadFromFile(BinaryReader br)
+        {
+            NeuronLayer ret = new NeuronLayer();
+
+            ret.output = new double[br.ReadInt32()];
+            for(int i = 0; i < ret.output.Length; i++)
+            {
+                ret.output[i] = br.ReadDouble();
+            }
+
+            ret.weightsOutput = new double[br.ReadInt32(), br.ReadInt32()];
+            for(int y = 0; y < ret.weightsOutput.GetLength(0); y++)
+            {
+                for(int x = 0; x < ret.weightsOutput.GetLength(1);x++)
+                {
+                    ret.weightsOutput[y, x] = br.ReadDouble();
+                }
+            }
+
+            ret.weightsInput = new double[br.ReadInt32(), br.ReadInt32()];
+            for (int y = 0; y < ret.weightsInput.GetLength(0); y++)
+            {
+                for (int x = 0; x < ret.weightsInput.GetLength(1); x++)
+                {
+                    ret.weightsInput[y, x] = br.ReadDouble();
+                }
+            }
+            return ret;
         }
     }
 }

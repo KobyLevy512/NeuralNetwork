@@ -17,6 +17,10 @@ namespace NeuralNetwork.Core
         public Activation Activation, ActivationDerivative;
         public int Seed;
 
+        private DeepNeural()
+        {
+            HiddenLayers = new List<NeuronLayer>();
+        }
         public DeepNeural(DeepNeural cpy, int newSeed = 0, double learningRate = 0)
         {
             //Set the new seed if supply
@@ -150,6 +154,101 @@ namespace NeuralNetwork.Core
                 error += Test(inputs[i], targets[i]);
             }
             return error;
+        }
+        public void Print(double[][] inputs)
+        {
+            for (int i = 0; i < inputs.GetLength(0); i++)
+            {
+                double[] res = Forward(inputs[i]);
+                Console.Write("{");
+                int j = 0;
+                for (; j < inputs[i].Length - 1; j++)
+                {
+                    Console.Write(inputs[i][j].ToString("0.00") + ", ");
+                }
+                Console.Write(inputs[i][j].ToString("0.00"));
+                Console.Write("} >> {");
+                for (j = 0; j < res.Length - 1; j++)
+                {
+                    Console.Write(res[j].ToString("0.00") + ", ");
+                }
+                Console.WriteLine(res[j].ToString("0.00") + "}");
+            }
+        }
+
+        public void SaveToFile(string filename)
+        {
+            BinaryWriter bw = new BinaryWriter(File.Create(filename));
+
+            //Train attributes.
+            bw.Write(Seed);
+            bw.Write(learningRate);
+
+            //Writing the activation functions.
+            for (int i = 0; i < Functions.Length; i++)
+            {
+                if (Activation == Functions[i])
+                {
+                    bw.Write(i);
+                    break;
+                }
+            }
+
+            for (int i = 0; i < Functions.Length; i++)
+            {
+                if (ActivationDerivative == Functions[i])
+                {
+                    bw.Write(i);
+                    break;
+                }
+            }
+
+            //Output
+            bw.Write(output.Length);
+            for (int i = 0; i < output.Length; i++)
+            {
+                bw.Write(output[i]);
+            }
+
+            //Layers
+            bw.Write(HiddenLayers.Count);
+            for(int i = 0; i < HiddenLayers.Count; i++)
+            {
+                HiddenLayers[i].SaveToFile(bw);
+            }
+
+            bw.Close();
+        }
+
+        public static DeepNeural LoadFromFile(string filename)
+        {
+            DeepNeural ret = new DeepNeural();
+            BinaryReader br = new BinaryReader(File.OpenRead(filename));
+
+            //Train attributes.
+            ret.Seed = br.ReadInt32();
+            ret.learningRate = br.ReadDouble();
+
+            //Activation Functions.
+            ret.Activation = Functions[br.ReadInt32()];
+            ret.ActivationDerivative = Functions[br.ReadInt32()];
+
+            //Output.
+            ret.output = new double[br.ReadInt32()];
+            for (int i = 0; i < ret.output.Length; i++)
+            {
+                ret.output[i] = br.ReadDouble();
+            }
+
+            //Layers.
+            int count = br.ReadInt32();
+            for(int i = 0; i < count; i++)
+            {
+                ret.HiddenLayers.Add(NeuronLayer.LoadFromFile(br));
+            }
+
+            br.Close();
+            return ret;
         }
     }
 }
