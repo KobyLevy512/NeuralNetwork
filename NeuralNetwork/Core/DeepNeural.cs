@@ -34,6 +34,8 @@ namespace NeuralNetwork.Core
             {
                 HiddenLayers.Add(new NeuronLayer(cpy.HiddenLayers[i]));
             }
+
+            ResetWeights();
         }
         public DeepNeural(int outputSize):this(outputSize, 0) { }
         public DeepNeural(int outputSize, int seed):this(outputSize, seed, Sigmoid, SigmoidDerivative) { }

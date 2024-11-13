@@ -73,7 +73,7 @@ namespace NeuralNetwork.Core
             NeuralNetwork? best = null;
             double bestValue = double.MaxValue;
             Task[] tasks = new Task[50];
-            int[] seedSteps = new int[tasks.Length];
+            int[] seedSteps = BuildSeedSteps(tasks.Length);
             int value = int.MinValue;
             for (int i = 0; i < seedSteps.Length; i++)
             {
