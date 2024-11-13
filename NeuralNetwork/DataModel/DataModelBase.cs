@@ -48,25 +48,7 @@ namespace NeuralNetwork.DataModel
                 FieldAttribute? att = field.GetCustomAttribute<FieldAttribute>();
                 if (att == null) continue;
                 Type type = field.FieldType;
-                if (type == typeof(string))
-                {
-                    string? value = field.GetValue(this)?.ToString();
-                    if (value == null) continue;
-                    int size = att.Size;
-                    if (value.Length > size)
-                    {
-                        value = value.Substring(0, size);
-                    }
-                    else
-                    {
-                        while (value.Length < size)
-                        {
-                            value += ((char)0).ToString();
-                        }
-                    }
-                    //ret.AddRange(Parser.StringToDouble(value));
-                }
-                else if (type == typeof(int))
+                if (type == typeof(int))
                 {
                     int? value = (int?)field.GetValue(this);
                     if (value == null) continue;

@@ -1,4 +1,5 @@
 ﻿
+using NeuralNetwork.DataModel;
 using static NeuralNetwork.Core.ActivationFunction;
 
 namespace NeuralNetwork.Core
@@ -135,6 +136,18 @@ namespace NeuralNetwork.Core
                 }
             }
         }
+
+        public void Train(DataStream stream, int epochs)
+        {
+            for (int epoch = 0; epoch < epochs; epoch++)
+            {
+                for (int i = 0; i < stream.Count; i++)
+                {
+                    var entry = stream.ReadEntry(i);
+                    Train(entry.Item1, entry.Item2, 1);
+                }
+            }
+        }
         public virtual double Test(double[] inputs, double[] targets)
         {
             double error = 0;
@@ -152,6 +165,17 @@ namespace NeuralNetwork.Core
             for(int i = 0; i <inputs.Length; i++)
             {
                 error += Test(inputs[i], targets[i]);
+            }
+            return error;
+        }
+
+        public double Test(DataStream stream)
+        {
+            double error = 0;
+            for (int i = 0; i < stream.Count; i++)
+            {
+                var entry = stream.ReadEntry(i);
+                error += Test(entry.Item1, entry.Item2);
             }
             return error;
         }
