@@ -46,14 +46,14 @@ namespace NeuralNetwork.DataModel
 
         public void Write(int y, int x, double value)
         {
-            bw.BaseStream.Position = 8 + ((y * this.x * 8) + (x * 8));
+            bw.BaseStream.Position = 8 + (((long)y * this.x * 8) + ((long)x * 8));
             bw.Write(value);
             bw.Flush();
         }
 
         public double Read(int x, int y)
         {
-            br.BaseStream.Position = 8 + ((y * this.x * 8) + (x * 8));
+            br.BaseStream.Position = 8 + (((long)y * this.x * 8) + ((long)x * 8));
             return br.ReadDouble();
         }
     }
