@@ -13,6 +13,20 @@ namespace NeuralNetwork.Core
             public double BestValue;
             public double TotalTime;
             public int[] SeedsStart;
+
+            public override string ToString()
+            {
+                string ret = "TotalSeed = " + TotalSeeds + "\n";
+                ret += "Threads = " + Threads + "\n";
+                ret += "BestValue = " + BestValue + "\n";
+                ret += "TotalTime = " + TotalTime + "\n";
+                ret += "SeedsByThread:\n";
+                foreach(var key in SeedsByThread.Keys)
+                {
+                    ret += key + ":" + SeedsByThread[key] + "\n";
+                }
+                return ret;
+            }
         }
 
         int threads, epochs;
@@ -48,7 +62,50 @@ namespace NeuralNetwork.Core
             }
             return result;
         }
-        public BigDN? Train(BigDN network, DataStream stream)
+
+        public void Interaction(Task[] threads, Stopwatch sw)
+        {
+            bool cancel = false;
+            Func<bool> threadsCompelete = () =>
+            {
+                for (int i = 0; i < threads.Length; i++)
+                {
+                    if (!threads[i].IsCompleted) return false;
+                }
+                return true;
+            };
+
+            while(!cancel)
+            {
+                if (threadsCompelete()) return;
+                Console.WriteLine("1:Print current Training results.");
+                Console.WriteLine("2:Print total minutes pass.");
+                Console.WriteLine("3:End Training Process.");
+                string? input = Console.ReadLine();
+                if (input == null) continue;
+                if(input == "1")
+                {
+                    result.TotalTime = sw.Elapsed.TotalMinutes;
+                    Console.WriteLine(result.ToString());
+                }
+                else if(input == "2")
+                {
+                    Console.WriteLine(sw.Elapsed.TotalMinutes.ToString("0.00"));
+                }
+                else if(input == "3")
+                {
+                    Console.WriteLine("Are you sure?(y,n)");
+                    input = Console.ReadLine();
+                    if(input == null) continue;
+                    if (input == "y") return;
+
+                }
+                Console.WriteLine("Press Any Key to continue.");
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
+        public BigDN? Train(BigDN network, DataStream stream, bool interaction = false, bool backup = false)
         {
             result = new TrainResult();
             result.Threads = threads;
@@ -87,6 +144,11 @@ namespace NeuralNetwork.Core
                             {
                                 bestValue = testResult;
                                 best = cp;
+                                result.BestValue = bestValue;
+                                if(backup)
+                                {
+                                    best.SaveToFile("backup.model");
+                                }
                             }
                         }
 
@@ -96,12 +158,18 @@ namespace NeuralNetwork.Core
                     result.SeedsByThread[i] = it;
                 });
             }
-            Task.WaitAll(tasks);
-            result.BestValue = bestValue;
+            if(interaction)
+            {
+                Interaction(tasks, sw);
+            }
+            else
+            {
+                Task.WaitAll(tasks);
+            }
             result.TotalTime = sw.Elapsed.TotalMinutes;
             return best;
         }
-        public BigDN? Train(BigDN network, double[][] inputs, double[][] targets)
+        public BigDN? Train(BigDN network, double[][] inputs, double[][] targets, bool interaction = false, bool backup = false)
         {
             result = new TrainResult();
             result.Threads = threads;
@@ -140,6 +208,11 @@ namespace NeuralNetwork.Core
                             {
                                 bestValue = testResult;
                                 best = cp;
+                                result.BestValue = bestValue;
+                                if (backup)
+                                {
+                                    best.SaveToFile("backup.model");
+                                }
                             }
                         }
 
@@ -149,12 +222,18 @@ namespace NeuralNetwork.Core
                     result.SeedsByThread[i] = it;
                 });
             }
-            Task.WaitAll(tasks);
-            result.BestValue = bestValue;
+            if (interaction)
+            {
+                Interaction(tasks, sw);
+            }
+            else
+            {
+                Task.WaitAll(tasks);
+            }
             result.TotalTime = sw.Elapsed.TotalMinutes;
             return best;
         }
-        public DeepNeural? Train(DeepNeural network, DataStream stream)
+        public DeepNeural? Train(DeepNeural network, DataStream stream, bool interaction = false, bool backup = false)
         {
             result = new TrainResult();
             result.Threads = threads;
@@ -193,6 +272,11 @@ namespace NeuralNetwork.Core
                             {
                                 bestValue = testResult;
                                 best = cp;
+                                result.BestValue = bestValue;
+                                if (backup)
+                                {
+                                    best.SaveToFile("backup.model");
+                                }
                             }
                         }
 
@@ -202,12 +286,18 @@ namespace NeuralNetwork.Core
                     result.SeedsByThread[i] = it;
                 });
             }
-            Task.WaitAll(tasks);
-            result.BestValue = bestValue;
+            if (interaction)
+            {
+                Interaction(tasks, sw);
+            }
+            else
+            {
+                Task.WaitAll(tasks);
+            }
             result.TotalTime = sw.Elapsed.TotalMinutes;
             return best;
         }
-        public DeepNeural? Train(DeepNeural network, double[][] inputs, double[][] targets)
+        public DeepNeural? Train(DeepNeural network, double[][] inputs, double[][] targets, bool interaction = false, bool backup = false)
         {
             result = new TrainResult();
             result.Threads = threads;
@@ -246,6 +336,11 @@ namespace NeuralNetwork.Core
                             {
                                 bestValue = testResult;
                                 best = cp;
+                                result.BestValue = bestValue;
+                                if (backup)
+                                {
+                                    best.SaveToFile("backup.model");
+                                }
                             }
                         }
 
@@ -255,12 +350,18 @@ namespace NeuralNetwork.Core
                     result.SeedsByThread[i] = it;
                 });
             }
-            Task.WaitAll(tasks);
-            result.BestValue = bestValue;
+            if (interaction)
+            {
+                Interaction(tasks, sw);
+            }
+            else
+            {
+                Task.WaitAll(tasks);
+            }
             result.TotalTime = sw.Elapsed.TotalMinutes;
             return best;
         }
-        public NeuralNetwork? Train(NeuralNetwork network, double[][] inputs, double[][] targets)
+        public NeuralNetwork? Train(NeuralNetwork network, double[][] inputs, double[][] targets, bool interaction = false, bool backup = false)
         {
             result = new TrainResult();
             result.Threads = threads;
@@ -307,6 +408,11 @@ namespace NeuralNetwork.Core
                             {
                                 bestValue = testResult;
                                 best = cp;
+                                result.BestValue = bestValue;
+                                if (backup)
+                                {
+                                    best.SaveToFile("backup.model");
+                                }
                             }
                         }
 
@@ -316,8 +422,14 @@ namespace NeuralNetwork.Core
                     result.SeedsByThread[i] = it;
                 });
             }
-            Task.WaitAll(tasks);
-            result.BestValue = bestValue;
+            if (interaction)
+            {
+                Interaction(tasks, sw);
+            }
+            else
+            {
+                Task.WaitAll(tasks);
+            }
             result.TotalTime = sw.Elapsed.TotalMinutes;
             return best;
         }
