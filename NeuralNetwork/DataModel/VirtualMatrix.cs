@@ -1,60 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using System.Runtime.InteropServices;
 
 namespace NeuralNetwork.DataModel
 {
-    public class VirtualMatrix
+    public unsafe class VirtualMatrix
     {
         static int ids = 0;
-        string path;
-        int x , y;
-        BinaryReader br;
-        BinaryWriter bw;
+        int x, y;
+        byte[] buffer;
+        FileStream stream;
 
-        public int GetLength(int index)
+        public int GetLength0
         {
-            if(index == 0)return y;
-            return x;
+            get => y;
         }
 
-        public double this[int y, int x]
+        public int GetLength1
         {
-            get => Read(y, x);
-            set => Write(y, x, value);
+            get => x;
         }
+
         public VirtualMatrix(int y, int x)
         {
-            this.x = x;
-            this.y = y;
-            path = "virtulMatrix" + ids + ".mat";
-            ids++;
-            FileStream stream = File.Create(path);
-            bw = new BinaryWriter(stream);
-            br = new BinaryReader(stream);
-            bw.Write(y);
-            bw.Write(x);
-            bw.Flush();
+            stream = new FileStream("p", FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite, x * 8);
+            buffer = new byte[x * 8];
         }
 
-        ~VirtualMatrix()
+        public double* ReadRow(int index)
         {
-            br.Close();
+            stream.Position = index * x * 8;
+            stream.Read(buffer, 0, buffer.Length);
+            fixed(byte* ptr = &buffer[0])
+            {
+                double* asDouble = (double*)ptr;
+                return asDouble;
+            }
         }
 
-        public void Write(int y, int x, double value)
+        public void WriteRow(int index)
         {
-            bw.BaseStream.Position = 8 + (((long)y * this.x * 8) + ((long)x * 8));
-            bw.Write(value);
-            bw.Flush();
-        }
-
-        public double Read(int x, int y)
-        {
-            br.BaseStream.Position = 8 + (((long)y * this.x * 8) + ((long)x * 8));
-            return br.ReadDouble();
+            stream.Position = index * x * 8;
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Flush();
         }
     }
 }

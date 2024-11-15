@@ -4,7 +4,7 @@ using static NeuralNetwork.Core.ActivationFunction;
 
 namespace NeuralNetwork.Core
 {
-    public class BigNL
+    public unsafe class BigNL
     {
         private const int pinkSize = 16;
         private VirtualMatrix weightsInput;
@@ -13,13 +13,13 @@ namespace NeuralNetwork.Core
 
         public int ExpectedOutput
         {
-            get => weightsOutput.GetLength(1);
+            get => weightsOutput.GetLength1;
         }
         private BigNL() { }
         public BigNL(BigNL cpy)
         {
-            weightsInput = new VirtualMatrix(cpy.weightsInput.GetLength(0), cpy.weightsInput.GetLength(1));
-            weightsOutput = new VirtualMatrix(cpy.weightsOutput.GetLength(0), cpy.weightsOutput.GetLength(1));
+            weightsInput = new VirtualMatrix(cpy.weightsInput.GetLength0, cpy.weightsInput.GetLength1);
+            weightsOutput = new VirtualMatrix(cpy.weightsOutput.GetLength0, cpy.weightsOutput.GetLength1);
             output = new double[cpy.output.Length];
         }
         public BigNL(int inputs, int nodes, int outputs)
@@ -37,9 +37,10 @@ namespace NeuralNetwork.Core
         {
             if (pink)
             {
-                for (int y = 0; y < weightsInput.GetLength(0); y++)
+                for (int y = 0; y < weightsInput.GetLength0; y++)
                 {
-                    for (int x = 0; x < weightsInput.GetLength(1); x++)
+                    double* row = weightsInput.ReadRow(y);
+                    for (int x = 0; x < weightsInput.GetLength1; x++)
                     {
                         double pinkSum = 0;
                         for (int i = 0; i < pinkSize; i++)
@@ -47,13 +48,15 @@ namespace NeuralNetwork.Core
                             pinkSum += rnd.NextDouble();
                         }
                         pinkSum /= pinkSize;
-                        weightsInput[y, x] = pinkSum * 2 - 1;
+                        *row = pinkSum * 2 - 1;
+                        row++;
                     }
                 }
 
-                for (int y = 0; y < weightsOutput.GetLength(0); y++)
+                for (int y = 0; y < weightsOutput.GetLength0; y++)
                 {
-                    for (int x = 0; x < weightsOutput.GetLength(1); x++)
+                    double* row = weightsOutput.ReadRow(y);
+                    for (int x = 0; x < weightsOutput.GetLength1; x++)
                     {
                         double pinkSum = 0;
                         for (int i = 0; i < pinkSize; i++)
@@ -61,24 +64,30 @@ namespace NeuralNetwork.Core
                             pinkSum += rnd.NextDouble();
                         }
                         pinkSum /= pinkSize;
-                        weightsOutput[y, x] = pinkSum * 2 - 1;
+                        *row = pinkSum * 2 - 1;
+                        row++;
                     }
                 }
             }
             else
             {
-                for (int y = 0; y < weightsInput.GetLength(0); y++)
+                for (int y = 0; y < weightsInput.GetLength0; y++)
                 {
-                    for (int x = 0; x < weightsInput.GetLength(1); x++)
+                    double* row = weightsInput.ReadRow(y);
+                    for (int x = 0; x < weightsInput.GetLength1; x++)
                     {
-                        weightsInput[y, x] = rnd.NextDouble() * 2 - 1;
+                        *row = rnd.NextDouble() * 2 - 1;
+                        row++;
                     }
                 }
-                for (int y = 0; y < weightsOutput.GetLength(0); y++)
+
+                for (int y = 0; y < weightsOutput.GetLength0; y++)
                 {
-                    for (int x = 0; x < weightsOutput.GetLength(1); x++)
+                    double* row = weightsOutput.ReadRow(y);
+                    for (int x = 0; x < weightsOutput.GetLength1; x++)
                     {
-                        weightsOutput[y, x] = rnd.NextDouble() * 2 - 1;
+                        *row = rnd.NextDouble() * 2 - 1;
+                        row++;
                     }
                 }
             }
@@ -92,20 +101,39 @@ namespace NeuralNetwork.Core
         /// <exception cref="ArgumentException"></exception>
         public virtual void PassInput(double[] input, Activation activation)
         {
-            if (input.Length != weightsInput.GetLength(0))
+            if (input.Length != weightsInput.GetLength0)
             {
                 throw new ArgumentException("inputs array size is not match");
             }
 
+            for(int i = 0; i < output.Length; i++)
+            {
+                output[i] = 0;
+            }
+
+            for (int j = 0; j < input.Length; j++)
+            {
+                double* row = weightsInput.ReadRow(j);
+                for(int i = 0; i < output.Length; i++)
+                {
+                    output[i] += input[j] * row[i];
+                }
+            }
+
             for (int i = 0; i < output.Length; i++)
             {
-                double sum = 0.0;
-                for (int j = 0; j < input.Length; j++)
-                {
-                    sum += input[j] * weightsInput[j, i];
-                }
-                output[i] = activation.Invoke(sum);
+                output[i] = activation.Invoke(output[i]);
             }
+
+            //for (int i = 0; i < output.Length; i++)
+            //{
+            //    double sum = 0.0;
+            //    for (int j = 0; j < input.Length; j++)
+            //    {
+            //        sum += input[j] * weightsInput[j, i];
+            //    }
+            //    output[i] = activation.Invoke(sum);
+            //}
         }
 
         /// <summary>
@@ -116,19 +144,39 @@ namespace NeuralNetwork.Core
         /// <exception cref="ArgumentException"></exception>
         public virtual void PassOutput(double[] output, Activation activation)
         {
-            if (output.Length != weightsOutput.GetLength(1))
+            if (output.Length != weightsOutput.GetLength1)
             {
                 throw new ArgumentException("inputs array size is not match");
             }
+
             for (int i = 0; i < output.Length; i++)
             {
-                double sum = 0.0;
-                for (int j = 0; j < this.output.Length; j++)
-                {
-                    sum += this.output[j] * weightsOutput[j, i];
-                }
-                output[i] = activation.Invoke(sum);
+                output[i] = 0;
             }
+
+            for (int j = 0; j < this.output.Length; j++)
+            {
+                double* row = weightsInput.ReadRow(j);
+                for (int i = 0; i < output.Length; i++)
+                {
+                    output[i] += this.output[j] * row[i];
+                }
+            }
+
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] = activation.Invoke(output[i]);
+            }
+
+            //for (int i = 0; i < output.Length; i++)
+            //{
+            //    double sum = 0.0;
+            //    for (int j = 0; j < this.output.Length; j++)
+            //    {
+            //        sum += this.output[j] * weightsOutput[j, i];
+            //    }
+            //    output[i] = activation.Invoke(sum);
+            //}
         }
 
         /// <summary>
@@ -154,29 +202,34 @@ namespace NeuralNetwork.Core
             for (int i = 0; i < output.Length; i++)
             {
                 double error = 0.0;
+                double* row = weightsOutput.ReadRow(i);
                 for (int j = 0; j < outputDeltas.Length; j++)
                 {
-                    error += outputDeltas[j] * weightsOutput[i, j];
+                    error += outputDeltas[j] * row[j];
                 }
                 hiddenDeltas[i] = error * actDer(output[i]);
             }
 
             //Update output weights.
-            for (int i = 0; i < weightsOutput.GetLength(0); i++)
+            for (int i = 0; i < weightsOutput.GetLength0; i++)
             {
-                for (int j = 0; j < weightsOutput.GetLength(1); j++)
+                double* row = weightsOutput.ReadRow(i);
+                for (int j = 0; j < weightsOutput.GetLength1; j++)
                 {
-                    weightsOutput[i, j] += learningRate * outputDeltas[j] * output[i];
+                    row[j] += learningRate * outputDeltas[j] * output[i];
                 }
+                weightsOutput.WriteRow(i);
             }
 
             //Update input weights.
-            for (int i = 0; i < weightsInput.GetLength(0); i++)
+            for (int i = 0; i < weightsInput.GetLength0; i++)
             {
-                for (int j = 0; j < weightsInput.GetLength(1); j++)
+                double* row = weightsInput.ReadRow(i);
+                for (int j = 0; j < weightsInput.GetLength1; j++)
                 {
-                    weightsInput[i, j] += learningRate * hiddenDeltas[j] * inputs[i];
+                    row[j] += learningRate * hiddenDeltas[j] * inputs[i];
                 }
+                weightsInput.WriteRow(i);
             }
         }
 
@@ -188,23 +241,25 @@ namespace NeuralNetwork.Core
                 bw.Write(output[i]);
             }
 
-            bw.Write(weightsOutput.GetLength(0));
-            bw.Write(weightsOutput.GetLength(1));
-            for (int y = 0; y < weightsOutput.GetLength(0); y++)
+            bw.Write(weightsOutput.GetLength0);
+            bw.Write(weightsOutput.GetLength1);
+            for (int y = 0; y < weightsOutput.GetLength0; y++)
             {
-                for (int x = 0; x < weightsOutput.GetLength(1); x++)
+                double* row = weightsOutput.ReadRow(y);
+                for (int x = 0; x < weightsOutput.GetLength1; x++)
                 {
-                    bw.Write(weightsOutput[y, x]);
+                    bw.Write(row[x]);
                 }
             }
 
-            bw.Write(weightsInput.GetLength(0));
-            bw.Write(weightsInput.GetLength(1));
-            for (int y = 0; y < weightsInput.GetLength(0); y++)
+            bw.Write(weightsInput.GetLength0);
+            bw.Write(weightsInput.GetLength0);
+            for (int y = 0; y < weightsInput.GetLength0; y++)
             {
-                for (int x = 0; x < weightsInput.GetLength(1); x++)
+                double* row = weightsInput.ReadRow(y);
+                for (int x = 0; x < weightsInput.GetLength1; x++)
                 {
-                    bw.Write(weightsInput[y, x]);
+                    bw.Write(row[x]);
                 }
             }
         }
@@ -220,21 +275,25 @@ namespace NeuralNetwork.Core
             }
 
             ret.weightsOutput = new VirtualMatrix(br.ReadInt32(), br.ReadInt32());
-            for (int y = 0; y < ret.weightsOutput.GetLength(0); y++)
+            for (int y = 0; y < ret.weightsOutput.GetLength0; y++)
             {
-                for (int x = 0; x < ret.weightsOutput.GetLength(1); x++)
+                double* row = ret.weightsOutput.ReadRow(y);
+                for (int x = 0; x < ret.weightsOutput.GetLength1; x++)
                 {
-                    ret.weightsOutput[y, x] = br.ReadDouble();
+                    row[x] = br.ReadDouble();
                 }
+                ret.weightsOutput.WriteRow(y);
             }
 
             ret.weightsInput = new VirtualMatrix(br.ReadInt32(), br.ReadInt32());
-            for (int y = 0; y < ret.weightsInput.GetLength(0); y++)
+            for (int y = 0; y < ret.weightsInput.GetLength0; y++)
             {
-                for (int x = 0; x < ret.weightsInput.GetLength(1); x++)
+                double* row = ret.weightsInput.ReadRow(y);
+                for (int x = 0; x < ret.weightsInput.GetLength1; x++)
                 {
-                    ret.weightsInput[y, x] = br.ReadDouble();
+                    row[x] = br.ReadDouble();
                 }
+                ret.weightsInput.WriteRow(y);
             }
             return ret;
         }
