@@ -107,6 +107,7 @@ namespace NeuralNetwork.Core
         }
         public BigDN? Train(BigDN network, DataStream stream, bool interaction = false, bool backup = false)
         {
+            bool terminate = false;
             result = new TrainResult();
             result.Threads = threads;
             BigDN? best = null;
@@ -125,7 +126,7 @@ namespace NeuralNetwork.Core
                 {
                     int it = 0;//Iterations amount.
                     //While we still have time and the seed value is not collapse with other thread.
-                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length))
+                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length) && !terminate)
                     {
 
                         //Iterate all of the activation functions to find the best.
@@ -161,6 +162,7 @@ namespace NeuralNetwork.Core
             if(interaction)
             {
                 Interaction(tasks, sw);
+                terminate = true;
             }
             else
             {
@@ -171,6 +173,7 @@ namespace NeuralNetwork.Core
         }
         public BigDN? Train(BigDN network, double[][] inputs, double[][] targets, bool interaction = false, bool backup = false)
         {
+            bool terminate = false;
             result = new TrainResult();
             result.Threads = threads;
             BigDN? best = null;
@@ -189,7 +192,7 @@ namespace NeuralNetwork.Core
                     int it = 0;//Iterations amount.
 
                     //While we still have time and the seed value is not collapse with other thread.
-                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length))
+                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length) && !terminate)
                     {
 
                         //Iterate all of the activation functions to find the best.
@@ -225,6 +228,7 @@ namespace NeuralNetwork.Core
             if (interaction)
             {
                 Interaction(tasks, sw);
+                terminate = true;
             }
             else
             {
@@ -235,6 +239,7 @@ namespace NeuralNetwork.Core
         }
         public DeepNeural? Train(DeepNeural network, DataStream stream, bool interaction = false, bool backup = false)
         {
+            bool terminate = false;
             result = new TrainResult();
             result.Threads = threads;
             DeepNeural? best = null;
@@ -253,7 +258,7 @@ namespace NeuralNetwork.Core
                     int it = 0;//Iterations amount.
 
                     //While we still have time and the seed value is not collapse with other thread.
-                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length))
+                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length) && !terminate)
                     {
 
                         //Iterate all of the activation functions to find the best.
@@ -289,6 +294,7 @@ namespace NeuralNetwork.Core
             if (interaction)
             {
                 Interaction(tasks, sw);
+                terminate = true;
             }
             else
             {
@@ -299,6 +305,7 @@ namespace NeuralNetwork.Core
         }
         public DeepNeural? Train(DeepNeural network, double[][] inputs, double[][] targets, bool interaction = false, bool backup = false)
         {
+            bool terminate = false;
             result = new TrainResult();
             result.Threads = threads;
             DeepNeural? best = null;
@@ -317,7 +324,7 @@ namespace NeuralNetwork.Core
                     int it = 0;//Iterations amount.
 
                     //While we still have time and the seed value is not collapse with other thread.
-                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length))
+                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length) && !terminate)
                     {
 
                         //Iterate all of the activation functions to find the best.
@@ -353,6 +360,7 @@ namespace NeuralNetwork.Core
             if (interaction)
             {
                 Interaction(tasks, sw);
+                terminate = true;
             }
             else
             {
@@ -363,6 +371,7 @@ namespace NeuralNetwork.Core
         }
         public NeuralNetwork? Train(NeuralNetwork network, double[][] inputs, double[][] targets, bool interaction = false, bool backup = false)
         {
+            bool terminate = false;
             result = new TrainResult();
             result.Threads = threads;
             NeuralNetwork? best = null;
@@ -389,7 +398,7 @@ namespace NeuralNetwork.Core
                     int it = 0;//Iterations amount.
 
                     //While we still have time and the seed value is not collapse with other thread.
-                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length))
+                    while (sw.Elapsed.TotalMinutes < minutesToTrain && it < (int)(uint.MaxValue / tasks.Length) && !terminate)
                     {
 
                         //Iterate all of the activation functions to find the best.
@@ -425,6 +434,7 @@ namespace NeuralNetwork.Core
             if (interaction)
             {
                 Interaction(tasks, sw);
+                terminate = true;
             }
             else
             {
